@@ -26,6 +26,7 @@ from __future__ import division
 
 import tensorflow as tf
 
+# training iterations: 500000
 base = dict(
     warmup_steps=200000,
     initial_lr=3e-3,
@@ -56,10 +57,21 @@ def merge_dicts(x, y):
 
 # HParam overrides for different consistency functions
 consistency_model_overrides = dict(
+    ours=dict(initial_lr=1e-3, max_cons_multiplier=8.0),
+    temporal=dict(
+        consistency_func="mean_squared_error",
+        max_cons_multiplier=8.0,
+        initial_lr=4e-4,
+    ),
     mean_teacher=dict(
         consistency_func="mean_squared_error",
         max_cons_multiplier=8.0,
         initial_lr=4e-4,
+    ),
+    swa=dict(
+        consistency_func="mean_squared_error",
+        max_cons_multiplier=8.0,
+        initial_lr=1e-3,
     ),
     vat=dict(consistency_func="forward_kl", max_cons_multiplier=0.3),
     pi_model=dict(
@@ -75,14 +87,22 @@ consistency_model_overrides = dict(
 
 # HParam overrides for different datasets
 cifar10_overrides = dict(horizontal_flip=True)
+
+cifar100_overrides = dict(horizontal_flip=True, gaussian_noise=False)
+
 cifar_unnormalized_overrides = cifar10_overrides
 
 imagenet_overrides = dict(
-    horizontal_flip=True,
-    num_classes=1000,
+    horizontal_flip=True, #num_classes=1000,
     random_translation=False,
     gaussian_noise=False,
 )
+tinyimagenet_overrides = dict(
+    horizontal_flip=True, #num_classes=1000, random_translation=False,
+    gaussian_noise=False,
+)
+cifar100_tinyimagenet_overrides = dict(horizontal_flip=True, gaussian_noise=False)
+
 svhn_overrides = dict(gaussian_noise=False, vat_epsilon=1.0)
 dataset_overrides = dict(
     cifar10=cifar10_overrides,
@@ -90,11 +110,15 @@ dataset_overrides = dict(
     imagenet=imagenet_overrides,
     imagenet_32=imagenet_overrides,
     imagenet_64=imagenet_overrides,
+    tinyimagenet_32=tinyimagenet_overrides,
     svhn=svhn_overrides,
+    cifar100=cifar100_overrides,
+    cifar100_tinyimagenet=cifar100_tinyimagenet_overrides,
 )
 
 
 def get_hparams(dataset, consistency_model):
+
     return tf.contrib.training.HParams(
         **merge_dicts(
             merge_dicts(base, dataset_overrides[dataset]),
