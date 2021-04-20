@@ -1,15 +1,10 @@
-# realistic-ssl-evaluation
+# ssl-class-mismatch
 
-This repository contains the code for
-[Realistic Evaluation of Deep Semi-Supervised Learning Algorithms](https://arxiv.org/abs/1804.09170), by Avital Oliver\*, Augustus Odena\*, Colin Raffel\*, Ekin D. Cubuk, and Ian J. Goodfellow, arXiv preprint arXiv:1804.09170.
-
-If you use the code in this repository for a published research project, please cite this paper.
+This repository contains the code for 
+[Semi-Supervised Learning under Class Distribution Mismatch](https://yanbeic.github.io/Doc/AAAI20-ChenY.pdf), which is built upon the implementation from [Realistic Evaluation of Deep Semi-Supervised Learning Algorithms](https://arxiv.org/abs/1804.09170).
 
 The code is designed to run on Python 3 using the dependencies listed in `requirements.txt`.
 You can install the dependencies by running `pip3 install -r requirements.txt`.
-
-The latest version of this repository can be found
-[here](https://github.com/brain-research/realistic-ssl-evaluation).
 
 # Prepare datasets
 
@@ -48,8 +43,14 @@ ImageNet32x32 is the only dataset which must be downloaded manually, due to lice
 
 All of the experiments in our paper are accompanied by a .yml file in `runs/`.These .yml files are intended to be used with [tmuxp](https://github.com/tmux-python/tmuxp), which is a session manager for tmux.
 They essentially provide a simple way to create a tmux session with all of the relevant tasks running (model training and evaluation).
-The .yml files are named according to their corresponding figure/table/section in the paper.
-For example, if you want to run an experiment evaluating VAT with 500 labels as shown in Figure 3, you could run
+
+For example, for the UASD model in [Semi-Supervised Learning under Class Distribution Mismatch](https://yanbeic.github.io/Doc/AAAI20-ChenY.pdf), you could run 
+
+```sh
+tmuxp load run-uasd/cifar10-4000.yml
+```
+
+If you want to run an experiment evaluating VAT with 500 labels as shown in Figure 3, you could run
 
 ```sh
 tmuxp load runs/figure-3-svhn-500-vat.yml
@@ -67,31 +68,3 @@ CUDA_VISIBLE_DEVICES=3 python3 evaluate_model.py --split=train --verbosity=0 --p
 ```
 
 Note that these commands are formulated to write out results to `/mnt/experiment-logs`.
-You will either need to create this directory or modify them to write to a different directory.
-Further, the .yml files are written to assume that this source tree lives in `/root/realistic-ssl-evaluation`.
-
-## A note on reproducibility
-
-While the focus of our paper is reproducibility, ultimately exact comparison to the results in our paper will be conflated by subtle differences such as the version of TensorFlow used, random seeds, etc.
-In other words, simply copying the numbers stated in our paper may not provide a means for reliable comparison.
-As a result, if you'd like to use our implementation of baseline methods as a point of comparison for e.g. a new semi-supervised learning technique, we'd recommend re-running our experiments from scratch in the same environment as your new technique.
-
-# Simulating small validation sets
-
-The following command runs evaluation on a set of checkpoints, with multiple resamples of small
-validation sets (as in figure 5 in the paper):
-
-```sh
-python3 evaluate_checkpoints.py --primary_dataset_name='cifar10' --checkpoints='/mnt/experiment-logs/section-4-3-cifar-fine-tuning/default/model.ckpt-1000000,/mnt/.../model.ckpt-...,...'
-```
-
-Results are printed to stdout for each evaluation run, and at the end a string representation of the entire list
-of validation accuracies for each resampled validation set and each checkpoint is printed:
-
-```
-{'/mnt/experiment-logs/table-1-svhn-1000-pi-model-run-5/default/model.ckpt-500001': [0.86, 0.93, 0.92, 0.91, 0.9, 0.94, 0.91, 0.88, 0.88, 0.89]}
-```
-
-# Disclaimer
-
-This is not an official Google product.
